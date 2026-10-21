@@ -4,229 +4,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#6d28d9">
   <title>OZWİ Yönetici Paneli</title>
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5fa;
-      color: #222;
+      margin: 0; padding: 20px; background: #f5f5fa;
+      color: #222; font-family: Arial, sans-serif;
     }
-    header {
-      background: #6d28d9;
-      color: white;
-      padding: 22px 16px;
+    main {
+      max-width: 700px; margin: 20px auto; padding: 22px;
+      background: white; border-radius: 16px;
+      box-shadow: 0 4px 20px #00000010;
     }
-    header h1 { margin: 0 0 6px; }
-    main { max-width: 850px; margin: auto; padding: 16px; }
-    .card {
-      background: white;
-      padding: 18px;
-      border-radius: 14px;
-      margin-bottom: 16px;
-      box-shadow: 0 3px 14px #0000000c;
-    }
-    h2 { margin-top: 0; }
-    input, textarea, select, button {
-      width: 100%;
-      padding: 12px;
-      margin: 6px 0 12px;
-      border: 1px solid #ddd;
-      border-radius: 9px;
+    h1 { color: #6d28d9; }
+    input, textarea, button {
+      width: 100%; padding: 12px; margin: 7px 0;
+      border: 1px solid #ddd; border-radius: 9px;
       font-size: 16px;
     }
-    input[type="checkbox"] { width: auto; }
     button {
-      background: #6d28d9;
-      color: white;
-      border: 0;
-      font-weight: bold;
-      cursor: pointer;
+      border: 0; background: #6d28d9; color: white;
+      font-weight: bold; cursor: pointer;
     }
-    button.secondary { background: #555; }
-    button.danger { background: #c62828; }
-    button.small { width: auto; padding: 9px 12px; }
-    .hidden { display: none !important; }
-    .status { padding: 10px 0; overflow-wrap: anywhere; }
+    button.secondary { background: #444; }
+    button.delete { background: #b91c1c; width: auto; }
     .product {
-      border: 1px solid #eee;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 10px 0;
+      border: 1px solid #eee; border-radius: 10px;
+      padding: 12px; margin: 10px 0;
+      overflow-wrap: anywhere;
     }
-    .product p { margin: 6px 0; overflow-wrap: anywhere; }
-    .actions { display: flex; gap: 8px; }
-    .actions button { flex: 1; }
+    #status { white-space: pre-wrap; overflow-wrap: anywhere; }
     .muted { color: #666; font-size: 14px; }
-    label { display: block; margin-top: 8px; }
   </style>
 </head>
 <body>
-<header>
-  <h1>OZWİ</h1>
-  <div>Yönetici Paneli 🔐</div>
-</header>
-
 <main>
-  <div id="status" class="status">Bağlantı hazırlanıyor...</div>
+  <h1>OZWİ Yönetici Paneli</h1>
+  <p class="muted">Ürün yönetimi</p>
 
-  <section id="loginCard" class="card hidden">
-    <h2>Yönetici Girişi</h2>
+  <section id="login">
+    <h2>Yönetici girişi</h2>
     <form id="loginForm">
-      <label for="email">E-posta adresin</label>
-      <input id="email" type="email" autocomplete="username"
-        placeholder="E-posta adresin" required>
-
-      <label for="password">Şifren</label>
-      <input id="password" type="password"
-        autocomplete="current-password" placeholder="Şifren"
-        required>
-
-      <button type="submit">Giriş Yap</button>
+      <input id="email" type="email" placeholder="E-posta adresin"
+        autocomplete="username" required>
+      <input id="password" type="password" placeholder="Şifren"
+        autocomplete="current-password" required>
+      <button type="submit">Giriş yap</button>
     </form>
-    <p class="muted">Yalnızca yetkili yönetici hesabı giriş yapabilir.</p>
   </section>
 
-  <section id="panel" class="hidden">
-    <div class="card">
-      <h2>Ürün Yönetimi</h2>
-      <p class="muted">Ürünler Supabase veritabanına kaydedilir.</p>
-
-      <form id="productForm">
-        <input id="productId" type="hidden">
-
-        <label for="name">Ürün adı *</label>
-        <input id="name" required maxlength="150"
-          placeholder="Örnek: Kablosuz kulaklık">
-
-        <label for="price">Fiyat (TL) *</label>
-        <input id="price" type="number" min="0" step="0.01"
-          required placeholder="499.90">
-
-        <label for="stock">Stok adedi *</label>
-        <input id="stock" type="number" min="0" step="1"
-          required value="0">
-
-        <label for="category">Kategori</label>
-        <input id="category" maxlength="100"
-          placeholder="Elektronik, Giyim, Ev...">
-
-        <label for="description">Ürün açıklaması</label>
-        <textarea id="description" rows="3"
-          placeholder="Ürün özellikleri"></textarea>
-
-        <label for="imageUrl">Ürün fotoğrafı bağlantısı</label>
-        <input id="imageUrl" type="url"
-          placeholder="https://...">
-
-        <label>
-          <input id="active" type="checkbox" checked>
-          Ürün mağazada aktif olsun
-        </label>
-
-        <button id="saveButton" type="submit">Ürünü Kaydet</button>
-        <button id="cancelEdit" class="secondary hidden"
-          type="button">Düzenlemeyi İptal Et</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2>Mağazadaki Ürünler</h2>
-      <button id="refreshButton" class="secondary" type="button">
-        Ürünleri Yenile
-      </button>
-      <div id="products">Ürünler yükleniyor...</div>
-    </div>
-
-    <div class="card">
-      <button id="logoutButton" class="danger" type="button">
-        Güvenli Çıkış Yap
-      </button>
-    </div>
+  <section id="panel" hidden>
+    <h2>Yeni ürün ekle</h2>
+    <form id="productForm">
+      <input id="name" placeholder="Ürün adı" required>
+      <textarea id="description" placeholder="Ürün açıklaması"></textarea>
+      <input id="price" type="number" min="0" step="0.01"
+        placeholder="Fiyat (TL)" required>
+      <input id="category" placeholder="Kategori" value="Diğer">
+      <input id="image_url" type="url" placeholder="Ürün görseli bağlantısı">
+      <input id="stock" type="number" min="0" step="1"
+        placeholder="Stok adedi" value="0" required>
+      <button type="submit">Ürünü kaydet</button>
+    </form>
+    <button id="refresh" class="secondary" type="button">Ürünleri yenile</button>
+    <button id="logout" class="secondary" type="button">Çıkış yap</button>
+    <h2>Ürünler</h2>
+    <div id="products"></div>
   </section>
+
+  <p id="status" role="status"></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
-  "use strict";
-
   const SUPABASE_URL = "https://kauvtuzglvulblrvoxbv.supabase.co";
   const SUPABASE_KEY = "sb_publishable_XBjj3taxc4llK4FNY5y9Bw_MEzmta5y";
 
   const statusBox = document.getElementById("status");
-  const loginCard = document.getElementById("loginCard");
+  const loginSection = document.getElementById("login");
   const panel = document.getElementById("panel");
   const productsBox = document.getElementById("products");
-  const productForm = document.getElementById("productForm");
-
-  let db = null;
-  let currentUser = null;
-  let busy = false;
 
   function status(message) {
     statusBox.textContent = message;
   }
 
-  function showLogin() {
-    loginCard.classList.remove("hidden");
-    panel.classList.add("hidden");
+  if (!window.supabase) {
+    status("Bağlantı kütüphanesi yüklenemedi. İnternet bağlantını kontrol et.");
+    return;
   }
 
-  function showPanel() {
-    loginCard.classList.add("hidden");
-    panel.classList.remove("hidden");
-  }
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  function resetForm() {
-    productForm.reset();
-    document.getElementById("productId").value = "";
-    document.getElementById("stock").value = "0";
-    document.getElementById("active").checked = true;
-    document.getElementById("saveButton").textContent = "Ürünü Kaydet";
-    document.getElementById("cancelEdit").classList.add("hidden");
-  }
+  async function checkAdmin() {
+    const { data: { user }, error: userError } = await db.auth.getUser();
 
-  async function checkAdmin(user) {
+    if (userError || !user) {
+      loginSection.hidden = false;
+      panel.hidden = true;
+      return false;
+    }
+
     const { data, error } = await db
       .from("admin_users")
       .select("user_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (error) throw error;
-    return !!data;
-  }
-
-  async function enterPanel(user) {
-    currentUser = user;
-    status("Yönetici yetkisi kontrol ediliyor...");
-
-    try {
-      const allowed = await checkAdmin(user);
-
-      if (!allowed) {
-        currentUser = null;
-        await db.auth.signOut();
-        showLogin();
-        status("Bu hesap yönetici olarak yetkilendirilmemiş.");
-        return;
-      }
-
-      showPanel();
-      status("Yönetici girişi başarılı.");
-      await loadProducts();
-    } catch (error) {
-      status("Yetki kontrolü başarısız: " + error.message);
+    if (error) {
+      status("Yönetici kontrolü başarısız: " + error.message);
+      return false;
     }
+
+    if (!data) {
+      status("Bu hesap yönetici listesinde bulunamadı.");
+      return false;
+    }
+
+    loginSection.hidden = true;
+    panel.hidden = false;
+    status("Giriş başarılı.");
+    return true;
   }
+
+  document.getElementById("loginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    status("Giriş deneniyor...");
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const { error } = await db.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      status("Giriş başarısız: " + error.message);
+      return;
+    }
+
+    const ok = await checkAdmin();
+    if (ok) await loadProducts();
+  });
 
   async function loadProducts() {
-    if (!currentUser) return;
-
-    productsBox.textContent = "Ürünler yükleniyor...";
+    status("Ürünler yükleniyor...");
 
     const { data, error } = await db
       .from("products")
@@ -234,9 +155,7 @@
       .order("created_at", { ascending: false });
 
     if (error) {
-      productsBox.textContent =
-        "Ürünler yüklenemedi: " + error.message +
-        " — Veritabanı izinlerini kontrol et.";
+      status("Ürünler yüklenemedi: " + error.message);
       return;
     }
 
@@ -244,219 +163,94 @@
 
     if (!data || data.length === 0) {
       productsBox.textContent = "Henüz ürün eklenmemiş.";
-      return;
-    }
-
-    data.forEach(product => {
-      const card = document.createElement("div");
-      card.className = "product";
-
-      const title = document.createElement("h3");
-      title.textContent = product.name;
-      card.appendChild(title);
-
-      const details = document.createElement("p");
-      details.textContent =
-        Number(product.price).toLocaleString("tr-TR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }) + " TL • Stok: " + product.stock +
-        " • " + (product.category || "Diğer");
-      card.appendChild(details);
-
-      const active = document.createElement("p");
-      active.textContent = product.active ? "Durum: Aktif" : "Durum: Pasif";
-      card.appendChild(active);
-
-      if (product.description) {
-        const description = document.createElement("p");
-        description.textContent = product.description;
-        card.appendChild(description);
-      }
-
-      const actions = document.createElement("div");
-      actions.className = "actions";
-
-      const edit = document.createElement("button");
-      edit.className = "small";
-      edit.type = "button";
-      edit.textContent = "Düzenle";
-      edit.addEventListener("click", () => editProduct(product));
-
-      const remove = document.createElement("button");
-      remove.className = "small danger";
-      remove.type = "button";
-      remove.textContent = "Sil";
-      remove.addEventListener("click", () => deleteProduct(product));
-
-      actions.append(edit, remove);
-      card.appendChild(actions);
-      productsBox.appendChild(card);
-    });
-  }
-
-  function editProduct(product) {
-    document.getElementById("productId").value = product.id;
-    document.getElementById("name").value = product.name || "";
-    document.getElementById("price").value = product.price;
-    document.getElementById("stock").value = product.stock;
-    document.getElementById("category").value = product.category || "";
-    document.getElementById("description").value =
-      product.description || "";
-    document.getElementById("imageUrl").value = product.image_url || "";
-    document.getElementById("active").checked = !!product.active;
-    document.getElementById("saveButton").textContent = "Değişiklikleri Kaydet";
-    document.getElementById("cancelEdit").classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  async function deleteProduct(product) {
-    if (!currentUser) return;
-    if (!confirm('"' + product.name + '" ürününü silmek istiyor musun?')) {
-      return;
-    }
-
-    const { error } = await db
-      .from("products")
-      .delete()
-      .eq("id", product.id);
-
-    if (error) {
-      status("Silme işlemi başarısız: " + error.message);
-      return;
-    }
-
-    status("Ürün silindi.");
-    await loadProducts();
-  }
-
-  productForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!currentUser || busy) return;
-
-    busy = true;
-    const saveButton = document.getElementById("saveButton");
-    saveButton.disabled = true;
-
-    try {
-      const name = document.getElementById("name").value.trim();
-      const price = Number(document.getElementById("price").value);
-      const stock = Number(document.getElementById("stock").value);
-      const category =
-        document.getElementById("category").value.trim() || "Diğer";
-      const description =
-        document.getElementById("description").value.trim();
-      const imageUrl = document.getElementById("imageUrl").value.trim();
-      const active = document.getElementById("active").checked;
-      const id = document.getElementById("productId").value;
-
-      if (!name || !Number.isFinite(price) || price < 0 ||
-          !Number.isInteger(stock) || stock < 0) {
-        status("Ürün adı, fiyat ve stok bilgilerini kontrol et.");
-        return;
-      }
-
-      if (imageUrl) {
-        const parsed = new URL(imageUrl);
-        if (parsed.protocol !== "https:") {
-          status("Fotoğraf bağlantısı HTTPS olmalı.");
-          return;
-        }
-      }
-
-      const product = {
-        name,
-        price,
-        stock,
-        category,
-        description,
-        image_url: imageUrl,
-        active
-      };
-
-      let result;
-
-      if (id) {
-        result = await db.from("products").update(product).eq("id", id);
-      } else {
-        result = await db.from("products").insert(product);
-      }
-
-      if (result.error) {
-        status("Kaydetme başarısız: " + result.error.message);
-        return;
-      }
-
-      status(id ? "Ürün güncellendi." : "Yeni ürün eklendi.");
-      resetForm();
-      await loadProducts();
-    } catch (error) {
-      status("Bir hata oluştu: " + error.message);
-    } finally {
-      busy = false;
-      saveButton.disabled = false;
-    }
-  });
-
-  document.getElementById("cancelEdit").addEventListener("click", resetForm);
-  document.getElementById("refreshButton").addEventListener("click", loadProducts);
-
-  document.getElementById("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!db) return;
-
-    status("Giriş yapılıyor...");
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    const { data, error } = await db.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      status("Giriş başarısız. E-posta ve şifreni kontrol et.");
-      return;
-    }
-
-    await enterPanel(data.user);
-  });
-
-  document.getElementById("logoutButton").addEventListener("click", async () => {
-    currentUser = null;
-    showLogin();
-    resetForm();
-
-    const { error } = await db.auth.signOut();
-    status(error ? "Çıkış hatası: " + error.message : "Güvenli çıkış yapıldı.");
-  });
-
-  async function init() {
-    if (!window.supabase) {
-      status("Bağlantı kütüphanesi yüklenemedi. İnternetini kontrol et.");
-      return;
-    }
-
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    status("Supabase bağlantısı hazır.");
-
-    const { data, error } = await db.auth.getSession();
-
-    if (error) {
-      status("Oturum kontrol edilemedi: " + error.message);
-      return;
-    }
-
-    if (data.session) {
-      await enterPanel(data.session.user);
     } else {
-      showLogin();
-      status("Yönetici hesabınla giriş yap.");
+      data.forEach(product => {
+        const item = document.createElement("div");
+        item.className = "product";
+
+        const title = document.createElement("strong");
+        title.textContent = product.name;
+
+        const details = document.createElement("p");
+        details.textContent =
+          Number(product.price).toLocaleString("tr-TR") + " TL · Stok: " +
+          product.stock + " · " + (product.active ? "Aktif" : "Pasif");
+
+        const remove = document.createElement("button");
+        remove.className = "delete";
+        remove.textContent = "Ürünü sil";
+        remove.addEventListener("click", async () => {
+          if (!confirm('"' + product.name + '" ürününü silmek istiyor musun?')) return;
+
+          const { error: deleteError } = await db
+            .from("products").delete().eq("id", product.id);
+
+          if (deleteError) {
+            status("Silinemedi: " + deleteError.message);
+            return;
+          }
+
+          status("Ürün silindi.");
+          await loadProducts();
+        });
+
+        item.append(title, details, remove);
+        productsBox.appendChild(item);
+      });
     }
+
+    status("Ürün listesi güncellendi.");
   }
 
-  init();
+  document.getElementById("productForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const product = {
+      name: document.getElementById("name").value.trim(),
+      description: document.getElementById("description").value.trim(),
+      price: Number(document.getElementById("price").value),
+      category: document.getElementById("category").value.trim() || "Diğer",
+      image_url: document.getElementById("image_url").value.trim(),
+      stock: Number(document.getElementById("stock").value),
+      active: true
+    };
+
+    if (!product.name || !Number.isFinite(product.price) ||
+        product.price < 0 || !Number.isInteger(product.stock) ||
+        product.stock < 0) {
+      status("Ürün adı, fiyat ve stok bilgilerini kontrol et.");
+      return;
+    }
+
+    status("Ürün kaydediliyor...");
+
+    const { error } = await db.from("products").insert(product);
+
+    if (error) {
+      status("Ürün kaydedilemedi: " + error.message);
+      return;
+    }
+
+    document.getElementById("productForm").reset();
+    document.getElementById("category").value = "Diğer";
+    document.getElementById("stock").value = "0";
+
+    status("Ürün başarıyla kaydedildi.");
+    await loadProducts();
+  });
+
+  document.getElementById("refresh").addEventListener("click", loadProducts);
+
+  document.getElementById("logout").addEventListener("click", async () => {
+    await db.auth.signOut();
+    loginSection.hidden = false;
+    panel.hidden = true;
+    status("Çıkış yapıldı.");
+  });
+
+  checkAdmin().then(ok => {
+    if (ok) loadProducts();
+  });
 })();
 </script>
 </body>

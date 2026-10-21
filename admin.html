@@ -8,13 +8,14 @@
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 20px; background: #f5f5fa;
-      color: #222; font-family: Arial, sans-serif;
+      margin: 0; padding: 18px;
+      font-family: Arial, sans-serif;
+      background: #f5f5fa; color: #222;
     }
     main {
-      max-width: 700px; margin: 20px auto; padding: 22px;
-      background: white; border-radius: 16px;
-      box-shadow: 0 4px 20px #00000010;
+      max-width: 700px; margin: 20px auto;
+      padding: 22px; background: white;
+      border-radius: 16px; box-shadow: 0 4px 20px #0001;
     }
     h1 { color: #6d28d9; }
     input, textarea, button {
@@ -23,26 +24,28 @@
       font-size: 16px;
     }
     button {
-      border: 0; background: #6d28d9; color: white;
-      font-weight: bold; cursor: pointer;
+      border: 0; background: #6d28d9;
+      color: white; font-weight: bold; cursor: pointer;
     }
-    button.secondary { background: #444; }
-    button.delete { background: #b91c1c; width: auto; }
+    .secondary { background: #444; }
+    .delete { background: #b91c1c; }
     .product {
-      border: 1px solid #eee; border-radius: 10px;
       padding: 12px; margin: 10px 0;
+      border: 1px solid #eee; border-radius: 10px;
       overflow-wrap: anywhere;
     }
-    #status { white-space: pre-wrap; overflow-wrap: anywhere; }
+    #status, #resetStatus {
+      white-space: pre-wrap; overflow-wrap: anywhere;
+    }
     .muted { color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
 <main>
   <h1>OZWİ Yönetici Paneli</h1>
-  <p class="muted">Ürün yönetimi</p>
+  <p class="muted">Mağaza yönetimi</p>
 
-  <section id="login">
+  <section id="loginSection">
     <h2>Yönetici girişi</h2>
     <form id="loginForm">
       <input id="email" type="email" placeholder="E-posta adresin"
@@ -51,58 +54,109 @@
         autocomplete="current-password" required>
       <button type="submit">Giriş yap</button>
     </form>
+    <button id="forgotButton" class="secondary" type="button">
+      Şifremi sıfırla
+    </button>
   </section>
 
-  <section id="panel" hidden>
+  <section id="resetRequestSection" hidden>
+    <h2>Şifre sıfırlama</h2>
+    <p>E-posta adresini gir. Kurtarma bağlantısı gönderilecek.</p>
+    <form id="resetRequestForm">
+      <input id="recoveryEmail" type="email"
+        placeholder="Hesabındaki e-posta adresi" required>
+      <button type="submit">Kurtarma bağlantısı gönder</button>
+    </form>
+    <button class="secondary backButton" type="button">Geri dön</button>
+  </section>
+
+  <section id="newPasswordSection" hidden>
+    <h2>Yeni şifre belirle</h2>
+    <p>Kurtarma bağlantısından buraya geldiysen yeni şifreni belirle.</p>
+    <form id="newPasswordForm">
+      <input id="newPassword" type="password" minlength="8"
+        autocomplete="new-password"
+        placeholder="Yeni şifre (en az 8 karakter)" required>
+      <input id="confirmPassword" type="password" minlength="8"
+        autocomplete="new-password"
+        placeholder="Yeni şifreyi tekrar yaz" required>
+      <button type="submit">Yeni şifreyi kaydet</button>
+    </form>
+  </section>
+
+  <section id="panelSection" hidden>
     <h2>Yeni ürün ekle</h2>
     <form id="productForm">
-      <input id="name" placeholder="Ürün adı" required>
+      <input id="productName" placeholder="Ürün adı" required>
       <textarea id="description" placeholder="Ürün açıklaması"></textarea>
       <input id="price" type="number" min="0" step="0.01"
         placeholder="Fiyat (TL)" required>
       <input id="category" placeholder="Kategori" value="Diğer">
-      <input id="image_url" type="url" placeholder="Ürün görseli bağlantısı">
+      <input id="imageUrl" type="url"
+        placeholder="Ürün görseli bağlantısı">
       <input id="stock" type="number" min="0" step="1"
         placeholder="Stok adedi" value="0" required>
       <button type="submit">Ürünü kaydet</button>
     </form>
-    <button id="refresh" class="secondary" type="button">Ürünleri yenile</button>
-    <button id="logout" class="secondary" type="button">Çıkış yap</button>
+    <button id="refreshButton" class="secondary" type="button">
+      Ürünleri yenile
+    </button>
+    <button id="logoutButton" class="secondary" type="button">
+      Çıkış yap
+    </button>
     <h2>Ürünler</h2>
     <div id="products"></div>
   </section>
 
   <p id="status" role="status"></p>
+  <p id="resetStatus" role="status"></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
-  const SUPABASE_URL = "https://kauvtuzglvulblrvoxbv.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_XBjj3taxc4llK4FNY5y9Bw_MEzmta5y";
+  const URL = "https://kauvtuzglvulblrvoxbv.supabase.co";
+  const KEY = "sb_publishable_XBjj3taxc4llK4FNY5y9Bw_MEzmta5y";
 
-  const statusBox = document.getElementById("status");
-  const loginSection = document.getElementById("login");
-  const panel = document.getElementById("panel");
-  const productsBox = document.getElementById("products");
-
-  function status(message) {
-    statusBox.textContent = message;
-  }
+  const $ = id => document.getElementById(id);
+  const status = message => $("status").textContent = message;
+  const resetStatus = message => $("resetStatus").textContent = message;
 
   if (!window.supabase) {
-    status("Bağlantı kütüphanesi yüklenemedi. İnternet bağlantını kontrol et.");
+    status("Bağlantı kütüphanesi yüklenemedi. İnterneti kontrol et.");
     return;
   }
 
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const db = window.supabase.createClient(URL, KEY, {
+    auth: {
+      flowType: "implicit",
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  });
+
+  const sections = [
+    "loginSection", "resetRequestSection",
+    "newPasswordSection", "panelSection"
+  ];
+
+  function showSection(id) {
+    sections.forEach(section => $(section).hidden = section !== id);
+  }
+
+  function hasRecoveryMarker() {
+    const hash = new URLSearchParams(location.hash.slice(1));
+    const query = new URLSearchParams(location.search);
+    return hash.get("type") === "recovery" ||
+           query.get("type") === "recovery";
+  }
 
   async function checkAdmin() {
     const { data: { user }, error: userError } = await db.auth.getUser();
 
     if (userError || !user) {
-      loginSection.hidden = false;
-      panel.hidden = true;
+      showSection("loginSection");
       return false;
     }
 
@@ -113,38 +167,21 @@
       .maybeSingle();
 
     if (error) {
+      showSection("loginSection");
       status("Yönetici kontrolü başarısız: " + error.message);
       return false;
     }
 
     if (!data) {
-      status("Bu hesap yönetici listesinde bulunamadı.");
+      showSection("loginSection");
+      status("Bu kullanıcı yönetici listesinde bulunamadı.");
       return false;
     }
 
-    loginSection.hidden = true;
-    panel.hidden = false;
+    showSection("panelSection");
     status("Giriş başarılı.");
     return true;
   }
-
-  document.getElementById("loginForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    status("Giriş deneniyor...");
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    const { error } = await db.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      status("Giriş başarısız: " + error.message);
-      return;
-    }
-
-    const ok = await checkAdmin();
-    if (ok) await loadProducts();
-  });
 
   async function loadProducts() {
     status("Ürünler yükleniyor...");
@@ -159,28 +196,30 @@
       return;
     }
 
-    productsBox.replaceChildren();
+    $("products").replaceChildren();
 
     if (!data || data.length === 0) {
-      productsBox.textContent = "Henüz ürün eklenmemiş.";
+      $("products").textContent = "Henüz ürün eklenmemiş.";
     } else {
       data.forEach(product => {
-        const item = document.createElement("div");
-        item.className = "product";
+        const box = document.createElement("div");
+        box.className = "product";
 
-        const title = document.createElement("strong");
-        title.textContent = product.name;
+        const name = document.createElement("strong");
+        name.textContent = product.name;
 
         const details = document.createElement("p");
         details.textContent =
-          Number(product.price).toLocaleString("tr-TR") + " TL · Stok: " +
-          product.stock + " · " + (product.active ? "Aktif" : "Pasif");
+          Number(product.price).toLocaleString("tr-TR") +
+          " TL · Stok: " + product.stock +
+          " · " + (product.active ? "Aktif" : "Pasif");
 
         const remove = document.createElement("button");
         remove.className = "delete";
         remove.textContent = "Ürünü sil";
+
         remove.addEventListener("click", async () => {
-          if (!confirm('"' + product.name + '" ürününü silmek istiyor musun?')) return;
+          if (!confirm('"' + product.name + '" silinsin mi?')) return;
 
           const { error: deleteError } = await db
             .from("products").delete().eq("id", product.id);
@@ -194,24 +233,96 @@
           await loadProducts();
         });
 
-        item.append(title, details, remove);
-        productsBox.appendChild(item);
+        box.append(name, details, remove);
+        $("products").appendChild(box);
       });
     }
 
     status("Ürün listesi güncellendi.");
   }
 
-  document.getElementById("productForm").addEventListener("submit", async (event) => {
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    status("Giriş deneniyor...");
+
+    const email = $("email").value.trim();
+    const password = $("password").value;
+
+    const { error } = await db.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      status("Giriş başarısız: " + error.message);
+      return;
+    }
+
+    if (await checkAdmin()) await loadProducts();
+  });
+
+  $("forgotButton").addEventListener("click", () => {
+    $("recoveryEmail").value = $("email").value.trim();
+    resetStatus("");
+    showSection("resetRequestSection");
+  });
+
+  $("resetRequestForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    resetStatus("Kurtarma e-postası isteniyor...");
+
+    const email = $("recoveryEmail").value.trim();
+
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: URL.replace(/\/$/, "") === URL
+        ? "https://ozwi-store.onrender.com/admin.html"
+        : "https://ozwi-store.onrender.com/admin.html"
+    });
+
+    if (error) {
+      resetStatus("E-posta gönderilemedi: " + error.message);
+      return;
+    }
+
+    resetStatus("İstek gönderildi. Gelen kutunu ve spam klasörünü kontrol et.");
+  });
+
+  $("newPasswordForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const password = $("newPassword").value;
+    const confirmation = $("confirmPassword").value;
+
+    if (password.length < 8) {
+      resetStatus("Şifre en az 8 karakter olmalı.");
+      return;
+    }
+
+    if (password !== confirmation) {
+      resetStatus("İki şifre aynı değil. Tekrar kontrol et.");
+      return;
+    }
+
+    resetStatus("Şifre güncelleniyor...");
+
+    const { error } = await db.auth.updateUser({ password });
+
+    if (error) {
+      resetStatus("Şifre değiştirilemedi: " + error.message);
+      return;
+    }
+
+    resetStatus("Şifren güncellendi. Yönetici girişi ekranına dönüp yeni şifrenle giriş yapabilirsin.");
+    showSection("loginSection");
+  });
+
+  $("productForm").addEventListener("submit", async event => {
     event.preventDefault();
 
     const product = {
-      name: document.getElementById("name").value.trim(),
-      description: document.getElementById("description").value.trim(),
-      price: Number(document.getElementById("price").value),
-      category: document.getElementById("category").value.trim() || "Diğer",
-      image_url: document.getElementById("image_url").value.trim(),
-      stock: Number(document.getElementById("stock").value),
+      name: $("productName").value.trim(),
+      description: $("description").value.trim(),
+      price: Number($("price").value),
+      category: $("category").value.trim() || "Diğer",
+      image_url: $("imageUrl").value.trim(),
+      stock: Number($("stock").value),
       active: true
     };
 
@@ -231,26 +342,46 @@
       return;
     }
 
-    document.getElementById("productForm").reset();
-    document.getElementById("category").value = "Diğer";
-    document.getElementById("stock").value = "0";
-
-    status("Ürün başarıyla kaydedildi.");
+    $("productForm").reset();
+    $("category").value = "Diğer";
+    $("stock").value = "0";
+    status("Ürün kaydedildi.");
     await loadProducts();
   });
 
-  document.getElementById("refresh").addEventListener("click", loadProducts);
+  $("refreshButton").addEventListener("click", loadProducts);
 
-  document.getElementById("logout").addEventListener("click", async () => {
+  $("logoutButton").addEventListener("click", async () => {
     await db.auth.signOut();
-    loginSection.hidden = false;
-    panel.hidden = true;
+    showSection("loginSection");
     status("Çıkış yapıldı.");
   });
 
-  checkAdmin().then(ok => {
-    if (ok) loadProducts();
+  document.querySelectorAll(".backButton").forEach(button => {
+    button.addEventListener("click", () => {
+      resetStatus("");
+      showSection("loginSection");
+    });
   });
+
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === "PASSWORD_RECOVERY" || hasRecoveryMarker()) {
+      showSection("newPasswordSection");
+      resetStatus("Yeni şifreni belirle.");
+    }
+  });
+
+  async function start() {
+    if (hasRecoveryMarker()) {
+      showSection("newPasswordSection");
+      resetStatus("Yeni şifreni belirle.");
+      return;
+    }
+
+    if (await checkAdmin()) await loadProducts();
+  }
+
+  start();
 })();
 </script>
 </body>

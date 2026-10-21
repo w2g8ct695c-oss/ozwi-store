@@ -5,62 +5,189 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#6d28d9">
-<title>OZWİ | Her şey burada</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OZWİ">
+<link rel="manifest" href="./manifest.json">
+<title>OZWİ | Alışverişin Yeni Adresi</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f5fa;color:#222}
-header{background:#6d28d9;color:white;padding:20px 16px}
-.logo{font-size:30px;font-weight:900;letter-spacing:3px}
-header p{margin:5px 0 15px}
-input{width:100%;padding:14px;border:0;border-radius:12px;font-size:16px}
-nav{display:flex;gap:10px;overflow:auto;padding:14px}
-nav button{border:0;background:white;border-radius:20px;padding:10px 15px;white-space:nowrap}
-h2{padding:0 16px}
-.products{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
-.product{background:white;border-radius:14px;padding:12px;box-shadow:0 2px 8px #0000000c}
-.pic{height:100px;background:#eee7ff;border-radius:10px;display:grid;place-items:center;font-size:42px}
-.product h3{font-size:15px}
-.price{color:#6d28d9;font-weight:bold;font-size:18px}
-.product button,.cart{width:100%;padding:11px;background:#6d28d9;color:white;border:0;border-radius:9px}
-footer{text-align:center;padding:25px;color:#666}
+body{margin:0;font-family:Arial,sans-serif;background:#f6f5fa;color:#252232;padding-bottom:75px}
+header{padding:22px 16px;background:linear-gradient(135deg,#5420b5,#9333ea);color:white;border-radius:0 0 22px 22px}
+.logo{font-size:34px;font-weight:900;letter-spacing:5px}
+header p{font-size:13px}
+input,textarea{font:inherit}
+.search{width:100%;padding:14px;border:0;border-radius:12px;margin-top:10px}
+.categories{display:flex;gap:8px;overflow-x:auto;padding:15px 12px}
+.categories button{white-space:nowrap;padding:10px 14px;border:0;border-radius:20px;background:white}
+.categories button.active{background:#6d28d9;color:white}
+.banner{margin:5px 13px;padding:18px;border-radius:15px;background:#eee5ff;color:#5420b5}
+h2{font-size:19px;margin:20px 14px 12px}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 12px}
+.product{background:white;padding:10px;border-radius:14px;box-shadow:0 2px 8px #0000000b}
+.pic{height:105px;background:#f0eaff;border-radius:10px;display:grid;place-items:center;font-size:42px}
+.product h3{font-size:14px;min-height:32px}
+.price{font-size:18px;color:#6d28d9;font-weight:bold}
+.small{font-size:12px;color:#777}
+.btn{width:100%;padding:12px;border:0;border-radius:9px;background:#6d28d9;color:white;font-weight:bold}
+.panel{background:white;border-radius:14px;padding:15px;margin:12px}
+.line{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #eee}
+.field{display:block;width:100%;padding:12px;border:1px solid #ddd;border-radius:9px;margin:7px 0 14px}
+label{font-size:13px;font-weight:bold}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 0;z-index:5}
+.bottom button{border:0;background:white;font-size:11px}
+.bottom span{display:block;font-size:20px;margin-bottom:3px}
+.empty{text-align:center;padding:25px;color:#777;grid-column:1/-1}
+footer{text-align:center;color:#777;font-size:12px;padding:25px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <header>
-<div class="logo">OZWİ</div>
-<p>Her şey burada, OZWİ’de!</p>
-<input id="search" placeholder="Ürün ara..." oninput="render()">
+  <div class="logo">OZWİ</div>
+  <p>Her şey burada, OZWİ’de! ✨</p>
+  <input id="search" class="search" placeholder="🔍 Ürün ara..." oninput="render()">
 </header>
-<nav>
-<button onclick="category='Tümü';render()">Tümü</button>
-<button onclick="category='Elektronik';render()">Elektronik</button>
-<button onclick="category='Giyim';render()">Giyim</button>
-<button onclick="category='Ev';render()">Ev & Yaşam</button>
-<button onclick="category='Otomotiv';render()">Otomotiv</button>
-</nav>
-<h2>✨ Öne Çıkan Ürünler</h2>
-<div class="products" id="products"></div>
-<h2>🛒 Sepetim: <span id="count">0</span></h2>
-<div style="padding:12px"><button class="cart" onclick="alert('Sipariş sistemi sonraki adımda kurulacak.')">Sipariş oluştur</button></div>
-<footer>© 2026 OZWİ · Her şey burada</footer>
+
+<section id="home">
+  <nav class="categories" id="categories"></nav>
+  <div class="banner"><strong>Alışverişin yeni adresi!</strong><p>Aradığın ürünleri keşfet.</p></div>
+  <h2 id="heading">✨ Öne Çıkan Ürünler</h2>
+  <div class="products" id="products"></div>
+</section>
+
+<section id="cartPage" hidden>
+  <h2>🛒 Sepetim</h2>
+  <div class="panel" id="cartItems"></div>
+  <div class="panel">
+    <div class="line"><strong>Toplam</strong><strong id="total">0 TL</strong></div>
+    <button class="btn" onclick="checkout()">Sipariş bilgilerine geç</button>
+  </div>
+</section>
+
+<section id="orderPage" hidden>
+  <h2>📦 Teslimat bilgileri</h2>
+  <div class="panel">
+    <form id="orderForm">
+      <label for="customer">Ad soyad</label>
+      <input class="field" id="customer" required placeholder="Adınız soyadınız">
+      <label for="phone">Telefon</label>
+      <input class="field" id="phone" type="tel" required placeholder="05XX XXX XX XX">
+      <label for="address">Teslimat adresi</label>
+      <textarea class="field" id="address" rows="3" required placeholder="Açık adresiniz"></textarea>
+      <label for="note">Sipariş notu</label>
+      <input class="field" id="note" placeholder="İsteğe bağlı">
+      <button class="btn" type="submit">Sipariş taslağını oluştur</button>
+    </form>
+    <p class="small">Bu sürüm gerçek ödeme almaz ve siparişi satıcıya göndermez.</p>
+  </div>
+</section>
+
+<section id="accountPage" hidden>
+  <h2>👤 Hesabım</h2>
+  <div class="panel">
+    <h3>OZWİ'ye hoş geldin!</h3>
+    <p>Üyelik ve sipariş takibi sonraki aşamada eklenecek.</p>
+  </div>
+</section>
+
+<section id="confirmationPage" hidden>
+  <h2>🧾 Sipariş özeti</h2>
+  <div class="panel" id="confirmation"></div>
+</section>
+
+<footer>OZWİ © 2026 · Her şey burada</footer>
+
+<div class="bottom">
+  <button onclick="showPage('home')"><span>🏠</span>Ana sayfa</button>
+  <button onclick="focusSearch()"><span>🔍</span>Ara</button>
+  <button onclick="showPage('cartPage')"><span>🛒</span>Sepet <b id="cartCount">0</b></button>
+  <button onclick="showPage('accountPage')"><span>👤</span>Hesabım</button>
+</div>
+
 <script>
+const cats=["Tümü","Elektronik","Giyim","Ev & Yaşam","Otomotiv","Spor","Kozmetik"];
 const items=[
-{name:"Kablosuz Kulaklık",price:499,cat:"Elektronik",pic:"🎧"},
-{name:"Akıllı Saat",price:899,cat:"Elektronik",pic:"⌚"},
-{name:"Günlük Tişört",price:299,cat:"Giyim",pic:"👕"},
-{name:"Spor Ayakkabı",price:749,cat:"Giyim",pic:"👟"},
-{name:"Masa Lambası",price:349,cat:"Ev",pic:"💡"},
-{name:"Dekoratif Vazo",price:249,cat:"Ev",pic:"🏺"},
-{name:"Araç Telefon Tutucu",price:199,cat:"Otomotiv",pic:"🚘"},
-{name:"Araç Düzenleyici",price:279,cat:"Otomotiv",pic:"🧰"}
+{id:1,name:"Kablosuz Kulaklık",price:499,cat:"Elektronik",pic:"🎧"},
+{id:2,name:"Akıllı Saat",price:899,cat:"Elektronik",pic:"⌚"},
+{id:3,name:"Günlük Tişört",price:299,cat:"Giyim",pic:"👕"},
+{id:4,name:"Spor Ayakkabı",price:749,cat:"Giyim",pic:"👟"},
+{id:5,name:"Masa Lambası",price:349,cat:"Ev & Yaşam",pic:"💡"},
+{id:6,name:"Dekoratif Vazo",price:249,cat:"Ev & Yaşam",pic:"🏺"},
+{id:7,name:"Araç Telefon Tutucu",price:199,cat:"Otomotiv",pic:"🚘"},
+{id:8,name:"Araç Düzenleyici",price:279,cat:"Otomotiv",pic:"🧰"},
+{id:9,name:"Spor Matı",price:399,cat:"Spor",pic:"🏋️"},
+{id:10,name:"Spor Topu",price:229,cat:"Spor",pic:"⚽"},
+{id:11,name:"Cilt Bakım Seti",price:459,cat:"Kozmetik",pic:"🧴"},
+{id:12,name:"Güneş Gözlüğü",price:329,cat:"Giyim",pic:"🕶️"}
 ];
-let category="Tümü",cart=[];
-function render(){
-const q=document.getElementById("search").value.toLocaleLowerCase("tr");
-document.getElementById("products").innerHTML=items.filter(p=>(category==="Tümü"||p.cat===category)&&p.name.toLocaleLowerCase("tr").includes(q)).map((p,i)=>`<div class="product"><div class="pic">${p.pic}</div><h3>${p.name}</h3><div class="price">${p.price} TL</div><p>${p.cat}</p><button onclick="add('${p.name}')">Sepete ekle</button></div>`).join("");
+let category="Tümü",cart={};
+
+function money(n){return n.toLocaleString("tr-TR")+" TL"}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+function drawCats(){
+ document.getElementById("categories").innerHTML=cats.map(c=>
+ '<button class="'+(category===c?'active':'')+'" onclick="pickCat(\''+c+'\')">'+c+'</button>'
+ ).join("");
 }
-function add(name){cart.push(name);document.getElementById("count").textContent=cart.length;alert(name+" sepete eklendi!")}
+function pickCat(c){category=c;drawCats();render()}
+function render(){
+ const q=document.getElementById("search").value.toLocaleLowerCase("tr-TR");
+ const found=items.filter(p=>(category==="Tümü"||p.cat===category)&&p.name.toLocaleLowerCase("tr-TR").includes(q));
+ document.getElementById("heading").textContent=q?"🔎 Arama sonuçları":category==="Tümü"?"✨ Öne Çıkan Ürünler":category;
+ document.getElementById("products").innerHTML=found.length?found.map(p=>
+ '<article class="product"><div class="pic">'+p.pic+'</div><h3>'+esc(p.name)+'</h3><div class="price">'+money(p.price)+'</div><p class="small">'+esc(p.cat)+'</p><button class="btn" onclick="add('+p.id+')">Sepete ekle</button></article>'
+ ).join(""):'<div class="empty">Ürün bulunamadı.</div>';
+}
+function add(id){cart[id]=(cart[id]||0)+1;updateCart();alert("Sepete eklendi! 🛒")}
+function qty(id,n){cart[id]=(cart[id]||0)+n;if(cart[id]<=0)delete cart[id];updateCart()}
+function updateCart(){
+ const ids=Object.keys(cart);
+ const count=ids.reduce((s,id)=>s+cart[id],0);
+ const total=items.reduce((s,p)=>s+p.price*(cart[p.id]||0),0);
+ document.getElementById("cartCount").textContent=count;
+ document.getElementById("total").textContent=money(total);
+ document.getElementById("cartItems").innerHTML=ids.length?ids.map(id=>{
+ const p=items.find(x=>x.id===Number(id));
+ return '<div class="line"><div><b>'+esc(p.name)+'</b><br><span class="small">'+money(p.price)+' × '+cart[id]+'</span></div><div><button onclick="qty('+id+',-1)">−</button> '+cart[id]+' <button onclick="qty('+id+',1)">+</button></div></div>';
+ }).join(""):'<div class="empty">Sepetin boş. Ürün ekleyerek başlayalım! 😊</div>';
+}
+function showPage(id){
+ ["home","cartPage","orderPage","accountPage","confirmationPage"].forEach(p=>document.getElementById(p).hidden=p!==id);
+ window.scrollTo(0,0);
+ if(id==="cartPage")updateCart();
+}
+function focusSearch(){showPage("home");document.getElementById("search").focus()}
+function checkout(){
+ if(!Object.keys(cart).length){alert("Önce sepete ürün ekle.");return}
+ showPage("orderPage");
+}
+document.getElementById("orderForm").addEventListener("submit",function(e){
+ e.preventDefault();
+ const name=document.getElementById("customer").value.trim();
+ const phone=document.getElementById("phone").value.trim();
+ const address=document.getElementById("address").value.trim();
+ const note=document.getElementById("note").value.trim();
+ const total=items.reduce((s,p)=>s+p.price*(cart[p.id]||0),0);
+ const list=Object.keys(cart).map(id=>{
+ const p=items.find(x=>x.id===Number(id));
+ return '<div class="line"><span>'+esc(p.name)+' × '+cart[id]+'</span><b>'+money(p.price*cart[id])+'</b></div>';
+ }).join("");
+ document.getElementById("confirmation").innerHTML=
+ '<p><b>Sipariş taslağı</b></p>'+list+
+ '<div class="line"><b>Toplam</b><b>'+money(total)+'</b></div>'+
+ '<h3>Teslimat bilgileri</h3><p>'+esc(name)+'</p><p>'+esc(phone)+'</p><p>'+esc(address)+'</p><p>'+esc(note||"Not yok")+'</p>'+
+ '<p class="small">Bu yalnızca ön izleme; sipariş kaydedilmedi veya satıcıya gönderilmedi.</p>'+
+ '<button class="btn" onclick="showPage(\'home\')">Alışverişe dön</button>';
+ showPage("confirmationPage");
+});
+drawCats();
 render();
+updateCart();
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
 </script>
 </body>
 </html>

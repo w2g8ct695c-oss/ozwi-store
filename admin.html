@@ -2,198 +2,462 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#6d28d9">
-<title>OZWİ Yönetim Paneli</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#f5f5fa;color:#202033;font-family:Arial,sans-serif}
-header{background:#6d28d9;color:white;padding:22px 18px}
-header h1{margin:0;font-size:25px}
-header p{margin:7px 0 0;font-size:14px}
-main{max-width:900px;margin:auto;padding:18px}
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card,.panel{background:white;border-radius:15px;padding:17px;box-shadow:0 2px 10px #15152a0b;margin-bottom:16px}
-.label{font-size:13px;color:#777}
-.number{font-size:27px;font-weight:bold;margin-top:8px}
-h2{font-size:19px;margin:0 0 16px}
-input,select,button{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:9px;font-size:15px}
-button{background:#6d28d9;color:white;border:0;font-weight:bold;cursor:pointer}
-button.delete{background:#dc2626;width:auto;padding:8px 12px}
-button.secondary{background:#eee;color:#333}
-.product{border-top:1px solid #eee;padding:13px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.product small{display:block;color:#777;margin-top:5px}
-.empty{color:#777;font-size:14px}
-.notice{font-size:13px;line-height:1.5;color:#6842a5;background:#f1eaff;padding:12px;border-radius:10px}
-@media(min-width:600px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6d28d9">
+  <title>OZWİ Yönetici Paneli</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5fa;
+      color: #222;
+    }
+    header {
+      background: #6d28d9;
+      color: white;
+      padding: 22px 16px;
+    }
+    header h1 { margin: 0 0 6px; }
+    main { max-width: 850px; margin: auto; padding: 16px; }
+    .card {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 14px #0000000c;
+    }
+    h2 { margin-top: 0; }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0 12px;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+    input[type="checkbox"] { width: auto; }
+    button {
+      background: #6d28d9;
+      color: white;
+      border: 0;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.secondary { background: #555; }
+    button.danger { background: #c62828; }
+    button.small { width: auto; padding: 9px 12px; }
+    .hidden { display: none !important; }
+    .status { padding: 10px 0; overflow-wrap: anywhere; }
+    .product {
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .product p { margin: 6px 0; overflow-wrap: anywhere; }
+    .actions { display: flex; gap: 8px; }
+    .actions button { flex: 1; }
+    .muted { color: #666; font-size: 14px; }
+    label { display: block; margin-top: 8px; }
+  </style>
 </head>
 <body>
 <header>
-  <h1>OZWİ Yönetim</h1>
-  <p>Mağaza kontrol paneli</p>
+  <h1>OZWİ</h1>
+  <div>Yönetici Paneli 🔐</div>
 </header>
+
 <main>
-  <div class="cards">
-    <div class="card">
-      <div class="label">Paneldeki ürün sayısı</div>
-      <div class="number" id="count">0</div>
-    </div>
-    <div class="card">
-      <div class="label">Toplam stok</div>
-      <div class="number" id="stock">0</div>
-    </div>
-    <div class="card">
-      <div class="label">Panel durumu</div>
-      <div class="number" style="font-size:19px">Hazır</div>
-    </div>
-  </div>
+  <div id="status" class="status">Bağlantı hazırlanıyor...</div>
 
-  <section class="panel">
-    <h2>➕ Yeni ürün ekle</h2>
-    <form id="productForm">
-      <div class="formgrid">
-        <div>
-          <label for="name">Ürün adı</label>
-          <input id="name" required maxlength="100" placeholder="Örn. Kablosuz kulaklık">
-        </div>
-        <div>
-          <label for="price">Fiyat (TL)</label>
-          <input id="price" type="number" min="0.01" step="0.01" required placeholder="499.90">
-        </div>
-        <div>
-          <label for="quantity">Stok adedi</label>
-          <input id="quantity" type="number" min="0" step="1" required placeholder="10">
-        </div>
-        <div>
-          <label for="category">Kategori</label>
-          <select id="category">
-            <option>Elektronik</option>
-            <option>Giyim</option>
-            <option>Ev ve Yaşam</option>
-            <option>Kozmetik</option>
-            <option>Market</option>
-            <option>Otomotiv</option>
-            <option>Diğer</option>
-          </select>
-        </div>
-      </div>
-      <button type="submit">Ürünü panele ekle</button>
+  <section id="loginCard" class="card hidden">
+    <h2>Yönetici Girişi</h2>
+    <form id="loginForm">
+      <label for="email">E-posta adresin</label>
+      <input id="email" type="email" autocomplete="username"
+        placeholder="E-posta adresin" required>
+
+      <label for="password">Şifren</label>
+      <input id="password" type="password"
+        autocomplete="current-password" placeholder="Şifren"
+        required>
+
+      <button type="submit">Giriş Yap</button>
     </form>
+    <p class="muted">Yalnızca yetkili yönetici hesabı giriş yapabilir.</p>
   </section>
 
-  <section class="panel">
-    <h2>📦 Ürün listesi</h2>
-    <div id="products"><p class="empty">Henüz panelde ürün yok.</p></div>
-  </section>
+  <section id="panel" class="hidden">
+    <div class="card">
+      <h2>Ürün Yönetimi</h2>
+      <p class="muted">Ürünler Supabase veritabanına kaydedilir.</p>
 
-  <section class="panel">
-    <h2>🛒 Sipariş yönetimi</h2>
-    <p class="empty">Gerçek siparişler henüz bu panele bağlı değil. Siparişleri göstermek için sunucu ve veritabanı bağlantısı kurulacak.</p>
-  </section>
+      <form id="productForm">
+        <input id="productId" type="hidden">
 
-  <p class="notice">
-    Önemli: Bu sürüm yalnızca bu tarayıcıda yerel kayıt yapar. Ürünler müşterilerin mağazasında görünmez. Yönetici girişi ve sunucu güvenliği henüz kurulmadığından buraya gerçek müşteri bilgileri veya gizli bilgiler ekleme.
-  </p>
+        <label for="name">Ürün adı *</label>
+        <input id="name" required maxlength="150"
+          placeholder="Örnek: Kablosuz kulaklık">
+
+        <label for="price">Fiyat (TL) *</label>
+        <input id="price" type="number" min="0" step="0.01"
+          required placeholder="499.90">
+
+        <label for="stock">Stok adedi *</label>
+        <input id="stock" type="number" min="0" step="1"
+          required value="0">
+
+        <label for="category">Kategori</label>
+        <input id="category" maxlength="100"
+          placeholder="Elektronik, Giyim, Ev...">
+
+        <label for="description">Ürün açıklaması</label>
+        <textarea id="description" rows="3"
+          placeholder="Ürün özellikleri"></textarea>
+
+        <label for="imageUrl">Ürün fotoğrafı bağlantısı</label>
+        <input id="imageUrl" type="url"
+          placeholder="https://...">
+
+        <label>
+          <input id="active" type="checkbox" checked>
+          Ürün mağazada aktif olsun
+        </label>
+
+        <button id="saveButton" type="submit">Ürünü Kaydet</button>
+        <button id="cancelEdit" class="secondary hidden"
+          type="button">Düzenlemeyi İptal Et</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Mağazadaki Ürünler</h2>
+      <button id="refreshButton" class="secondary" type="button">
+        Ürünleri Yenile
+      </button>
+      <div id="products">Ürünler yükleniyor...</div>
+    </div>
+
+    <div class="card">
+      <button id="logoutButton" class="danger" type="button">
+        Güvenli Çıkış Yap
+      </button>
+    </div>
+  </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const KEY = "ozwi_admin_products_demo_v1";
-const form = document.getElementById("productForm");
-const list = document.getElementById("products");
+(() => {
+  "use strict";
 
-function loadProducts(){
-  try {
-    const data = JSON.parse(localStorage.getItem(KEY) || "[]");
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
+  const SUPABASE_URL = "https://kauvtuzglvulblrvoxbv.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_XBjj3taxc4llK4FNY5y9Bw_MEzmta5y";
 
-function saveProducts(items){
-  localStorage.setItem(KEY, JSON.stringify(items));
-}
+  const statusBox = document.getElementById("status");
+  const loginCard = document.getElementById("loginCard");
+  const panel = document.getElementById("panel");
+  const productsBox = document.getElementById("products");
+  const productForm = document.getElementById("productForm");
 
-function render(){
-  const items = loadProducts();
-  document.getElementById("count").textContent = items.length;
-  document.getElementById("stock").textContent =
-    items.reduce((sum, item) => sum + item.quantity, 0);
+  let db = null;
+  let currentUser = null;
+  let busy = false;
 
-  list.replaceChildren();
-
-  if(items.length === 0){
-    const p = document.createElement("p");
-    p.className = "empty";
-    p.textContent = "Henüz panelde ürün yok.";
-    list.appendChild(p);
-    return;
+  function status(message) {
+    statusBox.textContent = message;
   }
 
-  items.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "product";
+  function showLogin() {
+    loginCard.classList.remove("hidden");
+    panel.classList.add("hidden");
+  }
 
-    const details = document.createElement("div");
-    const title = document.createElement("strong");
-    title.textContent = item.name;
+  function showPanel() {
+    loginCard.classList.add("hidden");
+    panel.classList.remove("hidden");
+  }
 
-    const info = document.createElement("small");
-    info.textContent = item.category + " · " +
-      item.price.toLocaleString("tr-TR", {
-        style:"currency", currency:"TRY"
-      }) + " · Stok: " + item.quantity;
+  function resetForm() {
+    productForm.reset();
+    document.getElementById("productId").value = "";
+    document.getElementById("stock").value = "0";
+    document.getElementById("active").checked = true;
+    document.getElementById("saveButton").textContent = "Ürünü Kaydet";
+    document.getElementById("cancelEdit").classList.add("hidden");
+  }
 
-    details.append(title, info);
+  async function checkAdmin(user) {
+    const { data, error } = await db
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    const del = document.createElement("button");
-    del.className = "delete";
-    del.type = "button";
-    del.textContent = "Sil";
-    del.addEventListener("click", () => {
-      if(!confirm("Bu ürünü panel listesinden silmek istiyor musun?")) return;
-      saveProducts(loadProducts().filter(x => x.id !== item.id));
-      render();
+    if (error) throw error;
+    return !!data;
+  }
+
+  async function enterPanel(user) {
+    currentUser = user;
+    status("Yönetici yetkisi kontrol ediliyor...");
+
+    try {
+      const allowed = await checkAdmin(user);
+
+      if (!allowed) {
+        currentUser = null;
+        await db.auth.signOut();
+        showLogin();
+        status("Bu hesap yönetici olarak yetkilendirilmemiş.");
+        return;
+      }
+
+      showPanel();
+      status("Yönetici girişi başarılı.");
+      await loadProducts();
+    } catch (error) {
+      status("Yetki kontrolü başarısız: " + error.message);
+    }
+  }
+
+  async function loadProducts() {
+    if (!currentUser) return;
+
+    productsBox.textContent = "Ürünler yükleniyor...";
+
+    const { data, error } = await db
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      productsBox.textContent =
+        "Ürünler yüklenemedi: " + error.message +
+        " — Veritabanı izinlerini kontrol et.";
+      return;
+    }
+
+    productsBox.replaceChildren();
+
+    if (!data || data.length === 0) {
+      productsBox.textContent = "Henüz ürün eklenmemiş.";
+      return;
+    }
+
+    data.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "product";
+
+      const title = document.createElement("h3");
+      title.textContent = product.name;
+      card.appendChild(title);
+
+      const details = document.createElement("p");
+      details.textContent =
+        Number(product.price).toLocaleString("tr-TR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }) + " TL • Stok: " + product.stock +
+        " • " + (product.category || "Diğer");
+      card.appendChild(details);
+
+      const active = document.createElement("p");
+      active.textContent = product.active ? "Durum: Aktif" : "Durum: Pasif";
+      card.appendChild(active);
+
+      if (product.description) {
+        const description = document.createElement("p");
+        description.textContent = product.description;
+        card.appendChild(description);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const edit = document.createElement("button");
+      edit.className = "small";
+      edit.type = "button";
+      edit.textContent = "Düzenle";
+      edit.addEventListener("click", () => editProduct(product));
+
+      const remove = document.createElement("button");
+      remove.className = "small danger";
+      remove.type = "button";
+      remove.textContent = "Sil";
+      remove.addEventListener("click", () => deleteProduct(product));
+
+      actions.append(edit, remove);
+      card.appendChild(actions);
+      productsBox.appendChild(card);
+    });
+  }
+
+  function editProduct(product) {
+    document.getElementById("productId").value = product.id;
+    document.getElementById("name").value = product.name || "";
+    document.getElementById("price").value = product.price;
+    document.getElementById("stock").value = product.stock;
+    document.getElementById("category").value = product.category || "";
+    document.getElementById("description").value =
+      product.description || "";
+    document.getElementById("imageUrl").value = product.image_url || "";
+    document.getElementById("active").checked = !!product.active;
+    document.getElementById("saveButton").textContent = "Değişiklikleri Kaydet";
+    document.getElementById("cancelEdit").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function deleteProduct(product) {
+    if (!currentUser) return;
+    if (!confirm('"' + product.name + '" ürününü silmek istiyor musun?')) {
+      return;
+    }
+
+    const { error } = await db
+      .from("products")
+      .delete()
+      .eq("id", product.id);
+
+    if (error) {
+      status("Silme işlemi başarısız: " + error.message);
+      return;
+    }
+
+    status("Ürün silindi.");
+    await loadProducts();
+  }
+
+  productForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!currentUser || busy) return;
+
+    busy = true;
+    const saveButton = document.getElementById("saveButton");
+    saveButton.disabled = true;
+
+    try {
+      const name = document.getElementById("name").value.trim();
+      const price = Number(document.getElementById("price").value);
+      const stock = Number(document.getElementById("stock").value);
+      const category =
+        document.getElementById("category").value.trim() || "Diğer";
+      const description =
+        document.getElementById("description").value.trim();
+      const imageUrl = document.getElementById("imageUrl").value.trim();
+      const active = document.getElementById("active").checked;
+      const id = document.getElementById("productId").value;
+
+      if (!name || !Number.isFinite(price) || price < 0 ||
+          !Number.isInteger(stock) || stock < 0) {
+        status("Ürün adı, fiyat ve stok bilgilerini kontrol et.");
+        return;
+      }
+
+      if (imageUrl) {
+        const parsed = new URL(imageUrl);
+        if (parsed.protocol !== "https:") {
+          status("Fotoğraf bağlantısı HTTPS olmalı.");
+          return;
+        }
+      }
+
+      const product = {
+        name,
+        price,
+        stock,
+        category,
+        description,
+        image_url: imageUrl,
+        active
+      };
+
+      let result;
+
+      if (id) {
+        result = await db.from("products").update(product).eq("id", id);
+      } else {
+        result = await db.from("products").insert(product);
+      }
+
+      if (result.error) {
+        status("Kaydetme başarısız: " + result.error.message);
+        return;
+      }
+
+      status(id ? "Ürün güncellendi." : "Yeni ürün eklendi.");
+      resetForm();
+      await loadProducts();
+    } catch (error) {
+      status("Bir hata oluştu: " + error.message);
+    } finally {
+      busy = false;
+      saveButton.disabled = false;
+    }
+  });
+
+  document.getElementById("cancelEdit").addEventListener("click", resetForm);
+  document.getElementById("refreshButton").addEventListener("click", loadProducts);
+
+  document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!db) return;
+
+    status("Giriş yapılıyor...");
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
     });
 
-    row.append(details, del);
-    list.appendChild(row);
-  });
-}
+    if (error) {
+      status("Giriş başarısız. E-posta ve şifreni kontrol et.");
+      return;
+    }
 
-form.addEventListener("submit", event => {
-  event.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-  const price = Number(document.getElementById("price").value);
-  const quantity = Number(document.getElementById("quantity").value);
-  const category = document.getElementById("category").value;
-
-  if(!name || !Number.isFinite(price) || price <= 0 ||
-     !Number.isInteger(quantity) || quantity < 0){
-    alert("Ürün adı, fiyat ve stok bilgilerini kontrol et.");
-    return;
-  }
-
-  const items = loadProducts();
-  items.push({
-    id: Date.now().toString() + Math.random().toString(36).slice(2),
-    name, price, quantity, category
+    await enterPanel(data.user);
   });
 
-  try {
-    saveProducts(items);
-    form.reset();
-    render();
-    alert("Ürün bu tarayıcıdaki deneme paneline eklendi.");
-  } catch {
-    alert("Kayıt yapılamadı. Tarayıcı depolama alanını kontrol et.");
-  }
-});
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    currentUser = null;
+    showLogin();
+    resetForm();
 
-render();
+    const { error } = await db.auth.signOut();
+    status(error ? "Çıkış hatası: " + error.message : "Güvenli çıkış yapıldı.");
+  });
+
+  async function init() {
+    if (!window.supabase) {
+      status("Bağlantı kütüphanesi yüklenemedi. İnternetini kontrol et.");
+      return;
+    }
+
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    status("Supabase bağlantısı hazır.");
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error) {
+      status("Oturum kontrol edilemedi: " + error.message);
+      return;
+    }
+
+    if (data.session) {
+      await enterPanel(data.session.user);
+    } else {
+      showLogin();
+      status("Yönetici hesabınla giriş yap.");
+    }
+  }
+
+  init();
+})();
 </script>
 </body>
 </html>

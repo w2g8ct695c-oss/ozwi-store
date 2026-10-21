@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6d28d9">
+<title>OZWİ Yönetim Paneli</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5fa;color:#202033;font-family:Arial,sans-serif}
+header{background:#6d28d9;color:white;padding:22px 18px}
+header h1{margin:0;font-size:25px}
+header p{margin:7px 0 0;font-size:14px}
+main{max-width:900px;margin:auto;padding:18px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card,.panel{background:white;border-radius:15px;padding:17px;box-shadow:0 2px 10px #15152a0b;margin-bottom:16px}
+.label{font-size:13px;color:#777}
+.number{font-size:27px;font-weight:bold;margin-top:8px}
+h2{font-size:19px;margin:0 0 16px}
+input,select,button{width:100%;padding:12px;margin:6px 0;border:1px solid #ddd;border-radius:9px;font-size:15px}
+button{background:#6d28d9;color:white;border:0;font-weight:bold;cursor:pointer}
+button.delete{background:#dc2626;width:auto;padding:8px 12px}
+button.secondary{background:#eee;color:#333}
+.product{border-top:1px solid #eee;padding:13px 0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.product small{display:block;color:#777;margin-top:5px}
+.empty{color:#777;font-size:14px}
+.notice{font-size:13px;line-height:1.5;color:#6842a5;background:#f1eaff;padding:12px;border-radius:10px}
+@media(min-width:600px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>OZWİ Yönetim</h1>
+  <p>Mağaza kontrol paneli</p>
+</header>
+<main>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Paneldeki ürün sayısı</div>
+      <div class="number" id="count">0</div>
+    </div>
+    <div class="card">
+      <div class="label">Toplam stok</div>
+      <div class="number" id="stock">0</div>
+    </div>
+    <div class="card">
+      <div class="label">Panel durumu</div>
+      <div class="number" style="font-size:19px">Hazır</div>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>➕ Yeni ürün ekle</h2>
+    <form id="productForm">
+      <div class="formgrid">
+        <div>
+          <label for="name">Ürün adı</label>
+          <input id="name" required maxlength="100" placeholder="Örn. Kablosuz kulaklık">
+        </div>
+        <div>
+          <label for="price">Fiyat (TL)</label>
+          <input id="price" type="number" min="0.01" step="0.01" required placeholder="499.90">
+        </div>
+        <div>
+          <label for="quantity">Stok adedi</label>
+          <input id="quantity" type="number" min="0" step="1" required placeholder="10">
+        </div>
+        <div>
+          <label for="category">Kategori</label>
+          <select id="category">
+            <option>Elektronik</option>
+            <option>Giyim</option>
+            <option>Ev ve Yaşam</option>
+            <option>Kozmetik</option>
+            <option>Market</option>
+            <option>Otomotiv</option>
+            <option>Diğer</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit">Ürünü panele ekle</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>📦 Ürün listesi</h2>
+    <div id="products"><p class="empty">Henüz panelde ürün yok.</p></div>
+  </section>
+
+  <section class="panel">
+    <h2>🛒 Sipariş yönetimi</h2>
+    <p class="empty">Gerçek siparişler henüz bu panele bağlı değil. Siparişleri göstermek için sunucu ve veritabanı bağlantısı kurulacak.</p>
+  </section>
+
+  <p class="notice">
+    Önemli: Bu sürüm yalnızca bu tarayıcıda yerel kayıt yapar. Ürünler müşterilerin mağazasında görünmez. Yönetici girişi ve sunucu güvenliği henüz kurulmadığından buraya gerçek müşteri bilgileri veya gizli bilgiler ekleme.
+  </p>
+</main>
+
+<script>
+const KEY = "ozwi_admin_products_demo_v1";
+const form = document.getElementById("productForm");
+const list = document.getElementById("products");
+
+function loadProducts(){
+  try {
+    const data = JSON.parse(localStorage.getItem(KEY) || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveProducts(items){
+  localStorage.setItem(KEY, JSON.stringify(items));
+}
+
+function render(){
+  const items = loadProducts();
+  document.getElementById("count").textContent = items.length;
+  document.getElementById("stock").textContent =
+    items.reduce((sum, item) => sum + item.quantity, 0);
+
+  list.replaceChildren();
+
+  if(items.length === 0){
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.textContent = "Henüz panelde ürün yok.";
+    list.appendChild(p);
+    return;
+  }
+
+  items.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "product";
+
+    const details = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = item.name;
+
+    const info = document.createElement("small");
+    info.textContent = item.category + " · " +
+      item.price.toLocaleString("tr-TR", {
+        style:"currency", currency:"TRY"
+      }) + " · Stok: " + item.quantity;
+
+    details.append(title, info);
+
+    const del = document.createElement("button");
+    del.className = "delete";
+    del.type = "button";
+    del.textContent = "Sil";
+    del.addEventListener("click", () => {
+      if(!confirm("Bu ürünü panel listesinden silmek istiyor musun?")) return;
+      saveProducts(loadProducts().filter(x => x.id !== item.id));
+      render();
+    });
+
+    row.append(details, del);
+    list.appendChild(row);
+  });
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const price = Number(document.getElementById("price").value);
+  const quantity = Number(document.getElementById("quantity").value);
+  const category = document.getElementById("category").value;
+
+  if(!name || !Number.isFinite(price) || price <= 0 ||
+     !Number.isInteger(quantity) || quantity < 0){
+    alert("Ürün adı, fiyat ve stok bilgilerini kontrol et.");
+    return;
+  }
+
+  const items = loadProducts();
+  items.push({
+    id: Date.now().toString() + Math.random().toString(36).slice(2),
+    name, price, quantity, category
+  });
+
+  try {
+    saveProducts(items);
+    form.reset();
+    render();
+    alert("Ürün bu tarayıcıdaki deneme paneline eklendi.");
+  } catch {
+    alert("Kayıt yapılamadı. Tarayıcı depolama alanını kontrol et.");
+  }
+});
+
+render();
+</script>
+</body>
+</html>

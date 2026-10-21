@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6d28d9">
+<title>OZWİ | Her şey burada</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5fa;color:#222}
+header{background:#6d28d9;color:white;padding:20px 16px}
+.logo{font-size:30px;font-weight:900;letter-spacing:3px}
+header p{margin:5px 0 15px}
+input{width:100%;padding:14px;border:0;border-radius:12px;font-size:16px}
+nav{display:flex;gap:10px;overflow:auto;padding:14px}
+nav button{border:0;background:white;border-radius:20px;padding:10px 15px;white-space:nowrap}
+h2{padding:0 16px}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.product{background:white;border-radius:14px;padding:12px;box-shadow:0 2px 8px #0000000c}
+.pic{height:100px;background:#eee7ff;border-radius:10px;display:grid;place-items:center;font-size:42px}
+.product h3{font-size:15px}
+.price{color:#6d28d9;font-weight:bold;font-size:18px}
+.product button,.cart{width:100%;padding:11px;background:#6d28d9;color:white;border:0;border-radius:9px}
+footer{text-align:center;padding:25px;color:#666}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">OZWİ</div>
+<p>Her şey burada, OZWİ’de!</p>
+<input id="search" placeholder="Ürün ara..." oninput="render()">
+</header>
+<nav>
+<button onclick="category='Tümü';render()">Tümü</button>
+<button onclick="category='Elektronik';render()">Elektronik</button>
+<button onclick="category='Giyim';render()">Giyim</button>
+<button onclick="category='Ev';render()">Ev & Yaşam</button>
+<button onclick="category='Otomotiv';render()">Otomotiv</button>
+</nav>
+<h2>✨ Öne Çıkan Ürünler</h2>
+<div class="products" id="products"></div>
+<h2>🛒 Sepetim: <span id="count">0</span></h2>
+<div style="padding:12px"><button class="cart" onclick="alert('Sipariş sistemi sonraki adımda kurulacak.')">Sipariş oluştur</button></div>
+<footer>© 2026 OZWİ · Her şey burada</footer>
+<script>
+const items=[
+{name:"Kablosuz Kulaklık",price:499,cat:"Elektronik",pic:"🎧"},
+{name:"Akıllı Saat",price:899,cat:"Elektronik",pic:"⌚"},
+{name:"Günlük Tişört",price:299,cat:"Giyim",pic:"👕"},
+{name:"Spor Ayakkabı",price:749,cat:"Giyim",pic:"👟"},
+{name:"Masa Lambası",price:349,cat:"Ev",pic:"💡"},
+{name:"Dekoratif Vazo",price:249,cat:"Ev",pic:"🏺"},
+{name:"Araç Telefon Tutucu",price:199,cat:"Otomotiv",pic:"🚘"},
+{name:"Araç Düzenleyici",price:279,cat:"Otomotiv",pic:"🧰"}
+];
+let category="Tümü",cart=[];
+function render(){
+const q=document.getElementById("search").value.toLocaleLowerCase("tr");
+document.getElementById("products").innerHTML=items.filter(p=>(category==="Tümü"||p.cat===category)&&p.name.toLocaleLowerCase("tr").includes(q)).map((p,i)=>`<div class="product"><div class="pic">${p.pic}</div><h3>${p.name}</h3><div class="price">${p.price} TL</div><p>${p.cat}</p><button onclick="add('${p.name}')">Sepete ekle</button></div>`).join("");
+}
+function add(name){cart.push(name);document.getElementById("count").textContent=cart.length;alert(name+" sepete eklendi!")}
+render();
+</script>
+</body>
+</html>
